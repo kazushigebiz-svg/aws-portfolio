@@ -2,90 +2,141 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Serverless Web API Project</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Direct Connect and On-Prem VM Migration to AWS</title>
+  <!-- AWS-themed stylesheet -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>Serverless Web API Project</h1>
+    <h1>Direct Connect and On-Prem VM Migration to AWS</h1>
     <nav>
       <a href="index.html">← Back to Portfolio</a>
+      <a href="#overview">Overview</a>
+      <a href="#existing-arrangement">Existing</a>
+      <a href="#approach">Approach</a>
+      <a href="#features">Features</a>
+      <a href="#considerations">Considerations</a>
+      <a href="#lessons">Lessons</a>
+      <a href="#terminology">Terminology</a>
     </nav>
   </header>
 
   <main>
-    <!-- Overview -->
-    <section id="overview">
+    <article id="overview">
       <h2>Overview</h2>
-      <p>
-        This project demonstrates how AWS serverless services can be leveraged to deliver
-        scalable, cost‑efficient APIs. It highlights my role as a presales engineer in
-        designing and presenting solutions from a system integrator perspective.
-      </p>
-      <img src="images/overview.png" alt="High-level overview diagram" />
-    </section>
-
-    <!-- Existing Arrangement -->
-    <section id="existing-arrangement">
-      <h2>Existing Arrangement</h2>
-      <p>
-        The client initially relied on monolithic applications hosted on traditional
-        infrastructure, facing challenges in scalability, cost, and operational overhead.
-      </p>
-      <img src="images/existing-arrangement.png" alt="Diagram of existing setup" />
-    </section>
-
-    <!-- Approach -->
-    <section id="approach">
-      <h2>Approach</h2>
-      <p>
-        I conducted requirement analysis, mapped workloads to AWS services, and proposed
-        a phased migration strategy. The focus was on reducing operational burden while
-        ensuring compliance and resilience.
-      </p>
-      <img src="images/approach.png" alt="Flowchart of solution approach" />
-    </section>
-
-    <!-- Final Architecture -->
-    <section id="final-architecture">
-      <h2>Final Architecture</h2>
-      <p>
-        The solution integrates AWS Lambda for compute, API Gateway for endpoint
-        management, and DynamoDB for persistence. CloudWatch and IAM policies ensure
-        observability and security.
-      </p>
-      <img src="images/final-architecture.png" alt="Final AWS architecture diagram" />
-    </section>
-
-    <!-- Features -->
-    <section id="features">
-      <h2>Features</h2>
+      <p><strong>Client:</strong> Financial Security Firm</p>
+      <p><strong>Proposal:</strong> Migration of internal systems from on-premises data center to AWS.</p>
       <ul>
-        <li>Fully serverless, pay‑per‑request model</li>
-        <li>Integrated with DynamoDB for persistence</li>
-        <li>API Gateway for RESTful endpoints</li>
-        <li>CloudWatch monitoring and IAM‑based security</li>
-        <li>Scalable and cost‑optimized design</li>
+        <li>Establishment of AWS Direct Connect and Site-to-Site VPN connectivity</li>
+        <li>Migration of VMs from Stratus everRun Virtualization Platform to AWS</li>
+        <li>Deployment of resilient architecture on AWS</li>
       </ul>
-      <img src="images/features.png" alt="Feature highlights illustration" />
-    </section>
+    </article>
 
-    <!-- Hindsight -->
-    <section id="hindsight">
-      <h2>Hindsight</h2>
-      <p>
-        Key lessons learned include the importance of early stakeholder alignment,
-        clear documentation of service limits, and proactive monitoring setup.
-        Future iterations could explore AWS Step Functions for orchestration and
-        enhanced CI/CD pipelines.
-      </p>
-      <img src="images/hindsight.png" alt="Lessons learned infographic" />
-    </section>
+    <article id="existing-arrangement">
+      <h2>Existing Arrangement</h2>
+      <p>The customer’s custom-built financial application currently runs on the <strong>Stratus everRun Virtualization Platform</strong>, which provides fault-tolerant workloads.</p>
+      <ul>
+        <li><strong>Challenge:</strong> Physical server hardware is reaching end-of-life. The customer must decide between hardware replacement or cloud migration to reduce physical footprint in the colocation data center, while retaining core network devices on-premises.</li>
+        <li><strong>OS Lifecycle:</strong> The existing Stratus everRun version runs on CentOS-based Linux, but due to CentOS EOL announced by Red Hat, Stratus everRun is shifting to Ubuntu-based Linux.</li>
+        <li><strong>Infrastructure:</strong> Current hardware specifications and infrastructure layout are documented.</li>
+      </ul>
+      <img src="images/existing-infrastructure.jpg" alt="Existing infrastructure photo placeholder" />
+    </article>
+
+    <article id="approach">
+      <h2>Approach</h2>
+      <p>The Stratus everRun platform delivers high availability through fault tolerance. The goal of this migration is to recreate a comparable level of resilience on AWS using native cloud services.</p>
+      <img src="images/approach-diagram.jpg" alt="Approach diagram placeholder" />
+
+      <h3>Step 1: VPC and Subnet Setup</h3>
+      <ul>
+        <li>Create separate VPCs for Production and UAT</li>
+        <li>Configure subnets across multiple Availability Zones</li>
+      </ul>
+
+      <h3>Step 2: Routing Setup</h3>
+      <p><strong>Site-to-Site VPN:</strong> Create VGW, configure Customer Gateway (FortiGate), establish IPsec tunnel, routing, connectivity test.</p>
+      <p><strong>Direct Connect:</strong> Provision Private VIF, configure BGP peering, conduct failover and throughput testing.</p>
+      <p><em>Note: Direct Connect provisioning requires months of lead time (circuit application, ISP coordination, cross-connect, testing).</em></p>
+
+      <h3>Step 3: Instance Setup (EC2 and RDS)</h3>
+      <ul>
+        <li>Deploy EC2 instances (Windows Server OS) in Production and UAT VPCs</li>
+        <li>Active–Passive failover across separate AZs</li>
+        <li>Three EC2 instances distributed across AZs</li>
+        <li>Amazon RDS for Oracle (Multi-AZ, License Included)</li>
+      </ul>
+
+      <h3>Step 4: Route 53 Setup</h3>
+      <p>Configure Route 53 DNS-level health checks for failover.</p>
+      <p><em>Near-zero failover is not required due to low traffic; Route 53 health checks are sufficient.</em></p>
+
+      <h3>Step 5: Backup, Monitoring, and Alerts</h3>
+      <ul>
+        <li>AWS Backup snapshots for EC2 and RDS</li>
+        <li>CloudWatch monitoring and SNS notifications</li>
+      </ul>
+      <img src="images/operations-monitoring.jpg" alt="Monitoring diagram placeholder" />
+    </article>
+
+    <article id="features">
+      <h2>Features</h2>
+      <h3>Reliability & Availability</h3>
+      <ul>
+        <li>DNS-level failover via Route 53</li>
+        <li>Multi-AZ deployment for EC2 and RDS</li>
+        <li>Automated backups with AWS Backup</li>
+      </ul>
+      <h3>Security Enhancements</h3>
+      <ul>
+        <li>Encrypted connectivity via Direct Connect and Site-to-Site VPN</li>
+        <li>Segregated VPCs for Production and UAT</li>
+      </ul>
+      <h3>Cost Optimization</h3>
+      <ul>
+        <li>Reduced operational overhead by leveraging AWS managed services</li>
+        <li>Right-sized architecture</li>
+      </ul>
+      <h3>Business Value</h3>
+      <ul>
+        <li>Lower hardware footprint and reduced colocation costs</li>
+        <li>Improved scalability and flexibility</li>
+      </ul>
+    </article>
+
+    <article id="considerations">
+      <h2>Cost & Security Considerations</h2>
+      <ul>
+        <li><strong>Cost Drivers:</strong> Hardware replacement vs AWS migration, licensing, managed services</li>
+        <li><strong>Security Concerns:</strong> Cloud migration required careful evaluation by the system department</li>
+      </ul>
+      <img src="images/cost-security-1.jpg" alt="Cost comparison placeholder" />
+      <img src="images/cost-security-2.jpg" alt="Security mapping placeholder" />
+      <img src="images/cost-security-3.jpg" alt="Telecom timeline placeholder" />
+    </article>
+
+    <article id="lessons">
+      <h2>Hindsight & Lessons Learned</h2>
+      <ul>
+        <li>Differences between on-prem and AWS architectures, especially connectivity and availability models</li>
+        <li>Connectivity from colocation to AWS via Direct Connect was critical</li>
+        <li>Telecom coordination with ISP was essential for Direct Connect circuits</li>
+      </ul>
+    </article>
+
+    <article id="terminology">
+      <h2>Extra Note on Terminology</h2>
+      <p><strong>Fault-tolerant architecture:</strong> Workloads continue seamlessly even if hardware fails, often requiring specialized infrastructure.</p>
+      <p><strong>Resilient architecture:</strong> Emphasizes recovery and continuity through redundancy, automation, and managed services. It balances availability, cost, and scalability.</p>
+      <p><em>This distinction explains why the migration focuses on resilience rather than strict fault tolerance—aligning with cloud-native design principles and cost optimization.</em></p>
+    </article>
   </main>
 
   <footer>
-    <p>© 2026 Your Name</p>
+    <p>© 2026 Kazushige Tani </p>
   </footer>
 </body>
 </html>
+
