@@ -4,365 +4,134 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Direct Connect and On-Prem VM Migration to AWS</title>
-  <meta name="description" content="Case study: Hybrid connectivity with AWS Direct Connect and Site-to-Site VPN, resilient AWS architecture, and migration from Stratus everRun to AWS." />
-  <meta name="author" content="Kazushige" />
-  <style>
-    :root {
-      --bg: #0b0f14;
-      --panel: #121822;
-      --text: #e6edf3;
-      --muted: #9aa7b3;
-      --accent: #27a3ff;
-      --accent-2: #7cdbff;
-      --border: #1f2a37;
-      --green: #4fd1a5;
-      --yellow: #ffd166;
-    }
-    html, body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.6;
-      margin: 0;
-    }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .container {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-    header {
-      padding: 28px 0 12px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 20px;
-    }
-    h1, h2, h3 {
-      margin: 0.2em 0 0.4em;
-      line-height: 1.25;
-    }
-    h1 {
-      font-size: 2rem;
-      letter-spacing: 0.2px;
-      color: var(--accent-2);
-    }
-    h2 {
-      font-size: 1.35rem;
-      margin-top: 1.2em;
-      color: #cfe8ff;
-    }
-    h3 {
-      font-size: 1.15rem;
-      color: #cde3f3;
-      margin-top: 1em;
-    }
-    p {
-      margin: 0.6em 0;
-      color: var(--text);
-    }
-    .lead {
-      color: var(--muted);
-      margin-top: 0.6em;
-      font-size: 1rem;
-    }
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px;
-      margin: 18px 0;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-    @media (min-width: 920px) {
-      .grid-2 {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-    ul, ol {
-      margin: 0.6em 0;
-      padding-left: 1.2em;
-    }
-    li { margin: 0.3em 0; }
-    strong.label {
-      color: #cfe8ff;
-      font-weight: 600;
-    }
-    .divider {
-      border: 0;
-      border-top: 1px solid var(--border);
-      margin: 22px 0;
-    }
-    figure {
-      margin: 16px 0;
-      border: 1px dashed var(--border);
-      border-radius: 10px;
-      padding: 10px;
-      background: #0e141c;
-    }
-    figcaption {
-      font-size: 0.9rem;
-      color: var(--muted);
-      margin-top: 6px;
-    }
-    .badge {
-      display: inline-block;
-      font-size: 0.9rem;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: #0d1924;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      margin-right: 8px;
-      margin-bottom: 6px;
-    }
-    .highlight {
-      border-left: 3px solid var(--accent);
-      padding-left: 12px;
-    }
-    .status {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #0d1924;
-      border: 1px solid var(--border);
-      padding: 6px 10px;
-      border-radius: 8px;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-    .callout {
-      background: #0d1a22;
-      border: 1px solid var(--border);
-      border-left: 4px solid var(--yellow);
-      padding: 14px;
-      border-radius: 10px;
-      margin: 12px 0;
-    }
-    .meta {
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-    footer {
-      padding: 18px 0 32px;
-      color: var(--muted);
-    }
-  </style>
+  <!-- Link to external CSS -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <a href="#content" class="skip-link" style="position:absolute;left:-999px;top:-999px;">Skip to content</a>
-  <header role="banner" aria-label="Project header">
-    <div class="container">
-      <h1>Direct Connect and On-Prem VM Migration to AWS</h1>
-      <p class="lead">Hybrid connectivity with AWS Direct Connect and Site-to-Site VPN, resilient AWS architecture, and migration from Stratus everRun to AWS.</p>
-      <div aria-label="Project tags">
-        <span class="badge">Hybrid networking</span>
-        <span class="badge">AWS Direct Connect</span>
-        <span class="badge">Site-to-Site VPN</span>
-        <span class="badge">EC2 &amp; RDS</span>
-        <span class="badge">Resilience</span>
-      </div>
-    </div>
+  <header>
+    <h1>Direct Connect and On-Prem VM Migration to AWS</h1>
+    <nav>
+      <a href="index.html">← Back to Portfolio</a>
+      <a href="#overview">Overview</a>
+      <a href="#approach">Approach</a>
+      <a href="#features">Features</a>
+      <a href="#lessons">Lessons</a>
+    </nav>
   </header>
 
-  <main id="content" class="container" role="main">
-    <section aria-labelledby="overview">
-      <h2 id="overview">Overview</h2>
-      <div class="panel">
-        <p><strong class="label">Client:</strong> Financial Security Firm</p>
-        <p><strong class="label">Proposal:</strong> Migration of internal systems from on-premises data center to AWS.</p>
-        <p><strong class="label">Scope:</strong></p>
-        <ul>
-          <li><strong class="label">Connectivity:</strong> Establish AWS Direct Connect and Site-to-Site VPN</li>
-          <li><strong class="label">Workload migration:</strong> Move VMs from Stratus everRun Virtualization Platform to AWS</li>
-          <li><strong class="label">Architecture:</strong> Deployment of resilient architecture on AWS</li>
-        </ul>
-      </div>
-    </section>
-
-    <hr class="divider" />
-
-    <section aria-labelledby="existing-arrangement">
-      <h2 id="existing-arrangement">Existing arrangement</h2>
-      <p>The customer’s custom-built financial application currently runs on the <strong>Stratus everRun Virtualization Platform</strong>, which provides fault-tolerant workloads.</p>
+  <main>
+    <article id="overview">
+      <h2>Overview</h2>
+      <p><strong>Client:</strong> Financial Security Firm</p>
+      <p><strong>Proposal:</strong> Migration of internal systems from on-premises data center to AWS.</p>
       <ul>
-        <li><strong class="label">Challenge:</strong> Physical server hardware is reaching end-of-life. The customer must decide between hardware replacement or cloud migration to reduce physical footprint in the colocation data center, while retaining core network devices on-premises.</li>
-        <li><strong class="label">OS lifecycle:</strong> The existing Stratus everRun version runs on CentOS-based Linux. Due to CentOS EOL announced by Red Hat, Stratus everRun is shifting to Ubuntu-based Linux.</li>
-        <li><strong class="label">Infrastructure:</strong> Current hardware specifications and infrastructure layout are documented.</li>
+        <li>Establish AWS Direct Connect and Site-to-Site VPN</li>
+        <li>Migration of VMs from Stratus everRun Virtualization Platform to AWS</li>
+        <li>Deployment of resilient architecture on AWS</li>
       </ul>
-      <figure aria-label="Existing infrastructure photo placeholder">
-        <img src="images/existing-infrastructure.jpg" alt="Existing data center hardware and Stratus everRun platform layout" width="100%" />
-        <figcaption>Existing hardware spec and infrastructure arrangement (photo placeholder).</figcaption>
-      </figure>
-    </section>
+    </article>
 
-    <hr class="divider" />
-
-    <section aria-labelledby="approach">
-      <h2 id="approach">Approach</h2>
-      <p>The Stratus everRun platform delivers high availability through fault tolerance. The goal of this migration is to recreate a comparable level of resilience on AWS using native cloud services.</p>
-      <figure aria-label="Target architecture photo placeholder">
-        <img src="images/approach-diagram.jpg" alt="High-level architecture diagram showing hybrid connectivity between data center and AWS" width="100%" />
-        <figcaption>Architecture overview (diagram placeholder).</figcaption>
-      </figure>
-
-      <h3>Step 1: VPC and subnet setup</h3>
+    <article id="existing">
+      <h2>Existing Arrangement</h2>
+      <p>The customer’s financial application runs on Stratus everRun Virtualization Platform.</p>
       <ul>
-        <li><strong class="label">Environment isolation:</strong> Create separate VPCs for Production and UAT</li>
-        <li><strong class="label">Redundancy:</strong> Configure subnets across multiple Availability Zones</li>
+        <li>Hardware nearing end-of-life</li>
+        <li>CentOS-based OS, shifting to Ubuntu due to CentOS EOL</li>
+        <li>Current infrastructure documented (photo placeholder)</li>
+      </ul>
+      <img src="images/existing-infrastructure.jpg" alt="Existing infrastructure photo placeholder" />
+    </article>
+
+    <article id="approach">
+      <h2>Approach</h2>
+      <p>Goal: Recreate comparable resilience on AWS using native services.</p>
+      <img src="images/approach-diagram.jpg" alt="Approach diagram placeholder" />
+
+      <h3>Step 1: VPC and Subnet Setup</h3>
+      <ul>
+        <li>Create separate VPCs for Production and UAT</li>
+        <li>Configure subnets across multiple AZs</li>
       </ul>
 
-      <h3>Step 2: Routing setup</h3>
-      <div class="grid grid-2">
-        <div class="panel">
-          <h3>Site-to-Site VPN</h3>
-          <ul>
-            <li><strong class="label">AWS side:</strong> Create a Virtual Private Gateway (VGW) on AWS VPC</li>
-            <li><strong class="label">Customer side:</strong> Configure Customer Gateway (FortiGate Firewall at Data Center)</li>
-            <li><strong class="label">Tunnel:</strong> Establish IPsec VPN</li>
-            <li><strong class="label">Routing:</strong> Configure routes on both ends and validate connectivity</li>
-          </ul>
-        </div>
-        <div class="panel">
-          <h3>Direct Connect</h3>
-          <ul>
-            <li><strong class="label">VIF:</strong> Provision Private Virtual Interface (VIF) for internal traffic</li>
-            <li><strong class="label">Dynamic routing:</strong> Configure BGP peering between Customer Gateway and AWS</li>
-            <li><strong class="label">Validation:</strong> Conduct failover and throughput testing</li>
-          </ul>
-        </div>
-      </div>
-      <div class="callout" role="note" aria-label="Connectivity lead time note">
-        <p><strong class="label">Remarks:</strong> Direct Connect and VPN are critical for this hybrid setup. Provisioning can require months (circuit application, ISP coordination, cross-connect, and testing). Plan schedules carefully to avoid implementation delays.</p>
-      </div>
+      <h3>Step 2: Routing Setup</h3>
+      <p><strong>Site-to-Site VPN:</strong> VGW, Customer Gateway, IPsec tunnel, routing, connectivity test.</p>
+      <p><strong>Direct Connect:</strong> Private VIF, BGP peering, failover and throughput testing.</p>
+      <p><em>Note: Provisioning requires months of lead time.</em></p>
 
-      <h3>Step 3: Instance setup (EC2 and RDS)</h3>
+      <h3>Step 3: Instance Setup</h3>
       <ul>
-        <li><strong class="label">Compute:</strong> Deploy EC2 instances (Windows Server OS) in Production and UAT VPCs</li>
-        <li><strong class="label">Failover:</strong> Configure Active–Passive across separate AZs in Production</li>
-        <li><strong class="label">Distribution:</strong> Run three EC2 instances across distinct AZs</li>
-        <li><strong class="label">Database:</strong> Deploy Amazon RDS for Oracle (Multi-AZ, License Included) to reduce operational overhead</li>
+        <li>Deploy EC2 (Windows Server) in Production and UAT VPCs</li>
+        <li>Active-Passive failover across AZs</li>
+        <li>Amazon RDS for Oracle (Multi-AZ, License Included)</li>
       </ul>
 
-      <h3>Step 4: Route 53 setup</h3>
+      <h3>Step 4: Route 53 Setup</h3>
+      <p>Configure DNS-level health checks for failover.</p>
+
+      <h3>Step 5: Backup & Monitoring</h3>
       <ul>
-        <li><strong class="label">Health checks:</strong> Configure Route 53 DNS-level health checks for failover</li>
+        <li>AWS Backup snapshots for EC2 and RDS</li>
+        <li>CloudWatch monitoring and SNS notifications</li>
       </ul>
-      <div class="callout" role="note" aria-label="Failover design note">
-        <p><strong class="label">Remarks:</strong> Near-zero failover is not required due to low internal traffic. Route 53 health checks are sufficient for the failover solution.</p>
-      </div>
+      <img src="images/operations-monitoring.jpg" alt="Monitoring diagram placeholder" />
+    </article>
 
-      <h3>Step 5: Backup, monitoring, and alerts</h3>
+    <article id="features">
+      <h2>Features</h2>
+      <h3>Reliability & Availability</h3>
       <ul>
-        <li><strong class="label">Protection:</strong> Configure AWS Backup snapshots for EC2 and RDS</li>
-        <li><strong class="label">Observability:</strong> Set up CloudWatch monitoring and SNS notifications</li>
+        <li>Route 53 DNS failover</li>
+        <li>Multi-AZ EC2 and RDS</li>
+        <li>Automated backups</li>
       </ul>
-      <figure aria-label="Operations monitoring photo placeholder">
-        <img src="images/operations-monitoring.jpg" alt="Monitoring dashboard summarizing CloudWatch metrics and SNS alerts" width="100%" />
-        <figcaption>Backup, monitoring, and alerting (diagram placeholder).</figcaption>
-      </figure>
-    </section>
-
-    <hr class="divider" />
-
-    <section aria-labelledby="final-architecture">
-      <h2 id="final-architecture">Final architecture</h2>
-      <p>The proposed architecture connects the customer’s HQ, branch offices, and data center to AWS via hybrid networking. Additional network infrastructure changes (hardware installation, reconfiguration) are required but not detailed in this summary.</p>
-      <figure aria-label="Final architecture photo placeholder">
-        <img src="images/final-architecture.jpg" alt="End-to-end architecture diagram connecting HQ, branch, data center, and AWS VPCs via Direct Connect and VPN" width="100%" />
-        <figcaption>Overall architecture for the Financial Security Firm (diagram placeholder).</figcaption>
-      </figure>
-    </section>
-
-    <hr class="divider" />
-
-    <section aria-labelledby="features">
-      <h2 id="features">Features</h2>
-
-      <div class="panel">
-        <h3>Reliability &amp; availability</h3>
-        <ul>
-          <li><strong class="label">DNS failover:</strong> Route 53 health checks</li>
-          <li><strong class="label">Redundancy:</strong> Multi-AZ for EC2 and RDS</li>
-          <li><strong class="label">Backups:</strong> Automated snapshots via AWS Backup</li>
-        </ul>
-      </div>
-
-      <div class="panel">
-        <h3>Security enhancements</h3>
-        <ul>
-          <li><strong class="label">Encrypted connectivity:</strong> Direct Connect and Site-to-Site VPN</li>
-          <li><strong class="label">Segregation:</strong> Separate VPCs for Production and UAT</li>
-        </ul>
-      </div>
-
-      <div class="panel">
-        <h3>Cost optimization</h3>
-        <ul>
-          <li><strong class="label">Managed services:</strong> Reduced operational overhead using AWS managed offerings</li>
-          <li><strong class="label">Right sizing:</strong> Avoided over-provisioning with a pragmatic resilience model</li>
-        </ul>
-      </div>
-
-      <div class="panel">
-        <h3>Business value</h3>
-        <ul>
-          <li><strong class="label">Lower footprint:</strong> Reduced on-prem hardware and colocation costs</li>
-          <li><strong class="label">Scalability:</strong> Improved flexibility for future workloads</li>
-        </ul>
-      </div>
-    </section>
-
-    <hr class="divider" />
-
-    <section aria-labelledby="considerations">
-      <h2 id="considerations">Cost &amp; security considerations</h2>
+      <h3>Security Enhancements</h3>
       <ul>
-        <li><strong class="label">Cost drivers:</strong> Hardware replacement vs. AWS migration, licensing, and managed services</li>
-        <li><strong class="label">Security:</strong> Cloud migration required careful evaluation by the system department to ensure compliance and data protection</li>
+        <li>Encrypted connectivity via Direct Connect and VPN</li>
+        <li>Separate VPCs for Production and UAT</li>
       </ul>
-      <figure aria-label="Cost and security photo placeholder">
-        <img src="images/cost-security-1.jpg" alt="Cost comparison chart for on-prem vs AWS managed services" width="100%" />
-        <figcaption>Cost &amp; security considerations (photo placeholder).</figcaption>
-      </figure>
-      <figure aria-label="Additional photo placeholder">
-        <img src="images/cost-security-2.jpg" alt="Security control mapping to AWS services" width="100%" />
-        <figcaption>Security mapping (photo placeholder).</figcaption>
-      </figure>
-      <figure aria-label="Additional photo placeholder">
-        <img src="images/cost-security-3.jpg" alt="Project timeline for telecom coordination and Direct Connect provisioning" width="100%" />
-        <figcaption>Telecom and provisioning timeline (photo placeholder).</figcaption>
-      </figure>
-    </section>
-
-    <hr class="divider" />
-
-    <section aria-labelledby="lessons">
-      <h2 id="lessons">Hindsight &amp; lessons learned</h2>
+      <h3>Cost Optimization</h3>
       <ul>
-        <li><strong class="label">Architecture shift:</strong> Key differences between on-prem and AWS, especially connectivity and availability models</li>
-        <li><strong class="label">Hybrid focus:</strong> Connectivity from the colocation data center to AWS via Direct Connect was a major consideration</li>
-        <li><strong class="label">Telecom coordination:</strong> ISP collaboration was essential for Direct Connect circuit delivery and reliable AWS access</li>
+        <li>Reduced overhead with AWS managed services</li>
+        <li>Right-sized architecture</li>
       </ul>
-    </section>
+      <h3>Business Value</h3>
+      <ul>
+        <li>Lower hardware footprint and colocation costs</li>
+        <li>Improved scalability</li>
+      </ul>
+    </article>
 
-    <hr class="divider" />
+    <article id="considerations">
+      <h2>Cost & Security Considerations</h2>
+      <ul>
+        <li>Hardware replacement vs AWS migration</li>
+        <li>Security compliance evaluation</li>
+      </ul>
+      <img src="images/cost-security-1.jpg" alt="Cost comparison placeholder" />
+      <img src="images/cost-security-2.jpg" alt="Security mapping placeholder" />
+      <img src="images/cost-security-3.jpg" alt="Telecom timeline placeholder" />
+    </article>
 
-    <section aria-labelledby="terminology">
-      <h2 id="terminology">Extra note on terminology</h2>
-      <div class="panel highlight" role="note" aria-label="Terminology comparison">
-        <p><strong class="label">Fault-tolerant architecture:</strong> Workloads continue seamlessly even if hardware fails, often requiring specialized infrastructure.</p>
-        <p><strong class="label">Resilient architecture:</strong> Emphasizes recovery and continuity through redundancy, automation, and managed services. It may not guarantee zero downtime, but it balances availability, cost, and scalability.</p>
-        <p class="meta">This distinction explains why the migration focuses on <em>resilience</em> rather than strict fault tolerance—aligning with cloud-native design principles and cost optimization.</p>
-      </div>
-    </section>
+    <article id="lessons">
+      <h2>Hindsight & Lessons Learned</h2>
+      <ul>
+        <li>Differences between on-prem and AWS architectures</li>
+        <li>Connectivity from colocation to AWS was critical</li>
+        <li>ISP coordination essential for Direct Connect</li>
+      </ul>
+    </article>
 
-    <footer role="contentinfo" aria-label="Footer">
-      <p class="meta">© Financial Security Firm case study. Authored by Kazushige. All product names and services are trademarks of their respective owners.</p>
-    </footer>
+    <article id="terminology">
+      <h2>Extra Note on Terminology</h2>
+      <p><strong>Fault-tolerant:</strong> Seamless continuation despite hardware failure, requiring specialized infra.</p>
+      <p><strong>Resilient:</strong> Recovery and continuity via redundancy, automation, managed services. Balances availability, cost, scalability.</p>
+      <p><em>This migration emphasizes resilience over strict fault tolerance, aligning with cloud-native design principles.</em></p>
+    </article>
   </main>
+
+  <footer>
+    <p>© Financial Security Firm case study. Authored by Kazushige.</p>
+  </footer>
 </body>
 </html>
+
