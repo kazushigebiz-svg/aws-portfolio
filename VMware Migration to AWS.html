@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VMware Migration to AWS</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>VMware Migration to AWS</h1>
+    <nav>
+      <a href="index.html">← Back to Portfolio</a>
+
+    </nav>
+  </header>
+
+  <main>
+    <article id="overview">
+      <h2>Overview</h2>
+      <p><strong>Client:</strong> Logistics Firm</p>
+      <p><strong>Proposal &amp; Rationale:</strong> Migrate the entire VMware vSphere platform to AWS due to VMware’s product lineup changes and rising licensing costs. AWS provides a more economical and scalable virtualization solution.</p>
+      <h3>Key Objectives</h3>
+      <ul>
+        <li>Establish <strong>AWS Direct Connect</strong> and <strong>Site-to-Site VPN</strong> for secure connectivity.</li>
+        <li>Migrate VMs from VMware vSphere to AWS using <strong>VM Import/Export</strong>.</li>
+        <li>Replace legacy VM-based services with <strong>AWS native managed services</strong> (File Storage, Domain Control, DNS, etc.).</li>
+      </ul>
+        <img src="images/B. Approach-2.png" alt="Final Architecture" />
+    </article>
+	
+    <article id="existing">
+      <h2>Existing Arrangement</h2>
+      <ul>
+        <li>13 virtual machines hosted on VMware vSphere.  </li>
+        <li>Functions include: Application servers (Accounting & HR), Domain Controller, DNS, SQL, and File servers. </li>
+      </ul>
+      <img src="images/B. Existing-2.png" alt="Existing infrastructure list2" />
+        <img src="images/B. Existing-1.png" alt="Existing infrastructure list1" />
+    </article>
+	
+    <article id="approach">
+      <h2>Approach</h2>
+      <img src="images/B. Approach-1.png" alt="AWS resources" />
+      <h3>1. Retire</h3>
+      <ul>
+        <li>Consolidate workloads and decommission redundant VMs to optimize resource usage.</li>
+      </ul>
+
+      <h3>2. Rehost (Lift &amp; Shift)</h3>
+      <ul>
+        <li>Migrate VMs directly to AWS without modifying applications.</li>
+      </ul>
+      <h4>Custom AMI creation via VM Import/Export</h4>
+      <ol>
+        <li>Export VMware VM as OVA or VMDK.</li>
+        <li>Upload to Amazon S3.</li>
+        <li>Convert using AWS VM Import/Export into an AMI.</li>
+        <li>Launch EC2 instances from the AMI.</li>
+      </ol>
+      <p><em>This method is particularly valuable for legacy operating systems (e.g., Windows Server 2003/2008) where official AMIs are unavailable.</em></p>
+
+      <h3>3. Re‑platform (Modernize)</h3>
+      <ul>
+        <li><strong>AWS Directory Service</strong> → Domain Controller</li>
+        <li><strong>Amazon Route 53</strong> → DNS</li>
+        <li><strong>Amazon FSx</strong> → File server</li>
+      </ul>
+
+      <h4>File server data migration options</h4>
+      <h5>Option A: AWS Snowball Edge</h5>
+      <ul>
+        <li>Use case: Large-scale data migration.</li>
+        <li>Pros: No bandwidth impact, secure, scalable.</li>
+        <li>Cons: Physical shipping introduces delays.</li>
+      </ul>
+
+      <h5>Option B: AWS DataSync</h5>
+      <ul>
+        <li>Use case: Automated transfer with sufficient bandwidth.</li>
+        <li>Pros: Fast, supports incremental sync, integrates with S3/EFS/FSx.</li>
+        <li>Cons: Transfer costs; requires agent setup.</li>
+      </ul>
+      <p><em>If a 1 Gbps circuit is unavailable, AWS Snowball Edge is recommended.</em></p>
+      <img src="images/B. Approach-3.png" alt="Whole approach" />
+	  
+      <h3>Key Benefits</h3>
+      <ul>
+        <li>Reduced licensing costs compared to VMware.</li>
+        <li>Improved scalability and flexibility with AWS managed services.</li>
+        <li>Optimized infrastructure by retiring redundant VMs.</li>
+        <li>Secure and efficient data migration options tailored to customer bandwidth constraints.</li>
+      </ul>
+    </article>
+
+    <article id="features">
+      <h2>Features</h2>
+      <ul>
+        <li>Migration of 13 VMware vSphere VMs to AWS.</li>
+        <li>Use of AWS Direct Connect and Site-to-Site VPN for secure connectivity.</li>
+        <li>VM Import/Export for legacy OS workloads (e.g., Windows Server 2003/2008).</li>
+        <li>Adoption of AWS managed services:
+          <ul>
+            <li>AWS Directory Service (Domain Controller)</li>
+            <li>Amazon Route 53 (DNS)</li>
+            <li>Amazon FSx (File server)</li>
+          </ul>
+        </li>
+        <li>Flexible data migration options: AWS Snowball Edge (large datasets) or AWS DataSync (bandwidth‑based automation).</li>
+        <li>Optimization through VM retirement and consolidation to reduce overhead.</li>
+      </ul>
+    </article>
+
+    <article id="lessons">
+      <h2>Lessons</h2>
+      <ul>
+        <li>VM Import/Export proved especially valuable for legacy systems where AWS AMIs were unavailable.</li>
+        <li>Early consideration of bandwidth limitations was critical in choosing between Snowball Edge and DataSync.</li>
+        <li>Consolidation of workloads reduced complexity and improved efficiency.</li>
+        <li>Leveraging AWS managed services minimized operational overhead compared to maintaining multiple EC2 instances.</li>
+        <li>A clear migration strategy (Retire → Rehost → Re‑platform) ensured smooth transition and avoided unnecessary relocation efforts.</li>
+      </ul>
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 Kazushige Tani</p>
+  </footer>
+</body>
+</html>
