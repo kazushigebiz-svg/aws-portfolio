@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synology Cloud Backup for Data Resilience</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Synology Cloud Backup for Data Resilience</h1>
+    <nav>
+      <a href="index.html">← Back to Portfolio</a>
+    </nav>
+  </header>
+
+  <main>
+    <article id="overview">
+      <h2>Overview</h2>
+      <p><strong>Client:</strong> Office NAS environment with limited IT budget</p>
+      <p><strong>Proposal:</strong> Implement a resilient, cost-effective backup strategy using onsite external HDD for primary backups and AWS S3 for offsite secondary backups via Synology Hyper Backup.</p>
+      <h3>Key Objectives</h3>
+      <ul>
+        <li>Ensure <strong>offsite data protection</strong> to mitigate local outages or device failure.</li>
+        <li>Maintain <strong>cost efficiency</strong> by choosing appropriate Amazon S3 storage classes.</li>
+        <li>Enable <strong>encrypted backups</strong> with client-side encryption.</li>
+      </ul>
+      <img src="images/cloud-backup-architecture.png" alt="Proposed backup architecture" />
+    </article>
+
+    <article id="existing">
+      <h2>Existing Arrangement</h2>
+      <ul>
+        <li><strong>NAS Model:</strong> Synology DS918+ with SHR configuration.</li>
+        <li><strong>Capacity:</strong> 4 TB usable storage.</li>
+        <li><strong>Local Protection:</strong> RAID configured; periodic USB external HDD backups.</li>
+      </ul>
+      <img src="images/existing-nas-overview.png" alt="Existing NAS overview" />
+      <img src="images/existing-backup-mechanism.png" alt="Current backup mechanism" />
+    </article>
+
+    <article id="approach">
+      <h2>Approach</h2>
+      <h3>Backup strategy</h3>
+      <ul>
+        <li><strong>Primary:</strong> Onsite external HDD for fast local recovery.</li>
+        <li><strong>Secondary:</strong> Offsite AWS S3 via Synology Hyper Backup for disaster resilience.</li>
+      </ul>
+      <img src="images/approach-diagram.png" alt="Approach diagram" />
+
+      <h3>AWS side</h3>
+      <ul>
+        <li><strong>S3 bucket:</strong> Create a dedicated bucket for NAS backups.</li>
+        <li><strong>IAM user:</strong> Provision Access Key and Secret Access Key with least-privilege policy.</li>
+      </ul>
+
+      <h3>Synology NAS side</h3>
+      <ul>
+        <li><strong>Hyper Backup:</strong> Configure backup tasks targeting AWS S3.</li>
+        <li><strong>Encryption:</strong> Enable client-side encryption for secure data at rest and in transit.</li>
+        <li><strong>Execution:</strong> Schedule and run backup jobs with verification.</li>
+      </ul>
+    </article>
+
+    <article id="features">
+      <h2>Features</h2>
+      <ul>
+        <li><strong>3‑2‑1 backup rule:</strong> 3 copies, 2 different media, 1 offsite.</li>
+        <li><strong>Contingency plan:</strong> Defined recovery steps for NAS failure scenarios.</li>
+        <li><strong>Encryption:</strong> Protects data during offsite transfer and storage.</li>
+        <li><strong>Cost control:</strong> S3 class selection aligned with access patterns.</li>
+      </ul>
+      <img src="images/3-2-1-rule.png" alt="3-2-1 Backup Rule" />
+      <img src="images/contingency-plan.png" alt="NAS failure contingency plan" />
+    </article>
+
+    <article id="technical">
+      <h2>Technical Considerations</h2>
+      <h3>Primary backup job</h3>
+      <ul>
+        <li><strong>Window:</strong> Schedule during low-usage hours for minimal impact.</li>
+        <li><strong>Method:</strong> Incremental backups to external HDD.</li>
+      </ul>
+      <img src="images/primary-backup-window.png" alt="Primary backup schedule and method" />
+
+      <h3>Secondary backup job</h3>
+      <ul>
+        <li><strong>Window:</strong> Nightly or off‑peak to optimize bandwidth.</li>
+        <li><strong>Method:</strong> Incremental, versioned backups to S3 via Hyper Backup.</li>
+      </ul>
+      <img src="images/secondary-backup-window.png" alt="Secondary backup schedule and method" />
+    </article>
+
+    <article id="lessons">
+      <h2>Lessons</h2>
+      <p><strong>Insight:</strong> The selected Amazon S3 storage class materially affects ongoing costs and resilience. Intelligent‑Tiering helps when access is unpredictable, while One Zone‑IA minimizes cost for easily re‑creatable secondary copies.</p>
+
+      <h3>Amazon S3 storage classes comparison</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Storage Class</th>
+            <th>Use Case</th>
+            <th>Features</th>
+            <th>Cost (USD/month)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>S3 Standard</strong></td>
+            <td>Frequently accessed data (websites, apps, gaming)</td>
+            <td>High durability, availability, performance</td>
+            <td>25.60</td>
+          </tr>
+          <tr>
+            <td><strong>S3 Intelligent‑Tiering</strong></td>
+            <td>Unknown or unpredictable access patterns</td>
+            <td>Auto‑moves data to cost‑effective tiers</td>
+            <td>25.76</td>
+          </tr>
+          <tr>
+            <td><strong>S3 Standard‑IA</strong></td>
+            <td>Long‑term storage, backups, DR</td>
+            <td>Lower cost for infrequent access; rapid retrieval</td>
+            <td>14.13</td>
+          </tr>
+          <tr>
+            <td><strong>S3 One Zone‑IA</strong></td>
+            <td>Secondary copies; easily re‑creatable data</td>
+            <td>Stored in a single Availability Zone</td>
+            <td>11.26</td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 Kazushige Tani</p>
+  </footer>
+</body>
+</html>
