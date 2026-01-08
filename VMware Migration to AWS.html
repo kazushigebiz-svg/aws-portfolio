@@ -19,7 +19,7 @@
     <article id="overview">
       <h2>Overview</h2>
       <p><strong>Client:</strong> Logistics Firm</p>
-      <p><strong>Proposal &amp; Rationale:</strong> Migrate the entire VMware vSphere platform to AWS due to VMware’s product lineup changes and rising licensing costs. AWS provides a more economical and scalable virtualization solution.</p>
+      <p><strong>Proposal:</strong> Migrate the entire VMware vSphere platform to AWS due to VMware’s product lineup changes and rising licensing costs. AWS provides a more economical and scalable virtualization solution.</p>
       <h3>Key Objectives</h3>
       <ul>
         <li>Establish <strong>AWS Direct Connect</strong> and <strong>Site-to-Site VPN</strong> for secure connectivity.</li>
@@ -33,15 +33,16 @@
       <h2>Existing Arrangement</h2>
       <ul>
         <li>13 virtual machines hosted on VMware vSphere.  </li>
-        <li>Functions include: Application servers (Accounting & HR), Domain Controller, DNS, SQL, and File servers. </li>
       </ul>
       <img src="images/B. Existing-2.png" alt="Existing infrastructure list2" />
-        <img src="images/B. Existing-1.png" alt="Existing infrastructure list1" />
+      <ul>
+        <li>Functions include: Application servers (Accounting & HR), Domain Controller, DNS, SQL, and File servers. </li>
+      </ul>
+	  <img src="images/B. Existing-1.png" alt="Existing infrastructure list1" />
     </article>
 	
     <article id="approach">
       <h2>Approach</h2>
-      <img src="images/B. Approach-1.png" alt="AWS resources" />
       <h3>1. Retire</h3>
       <ul>
         <li>Consolidate workloads and decommission redundant VMs to optimize resource usage.</li>
@@ -58,6 +59,7 @@
         <li>Convert using AWS VM Import/Export into an AMI.</li>
         <li>Launch EC2 instances from the AMI.</li>
       </ol>
+	  <img src="images/B. Approach-1.png" alt="AWS resources" />
       <p><em>This method is particularly valuable for legacy operating systems (e.g., Windows Server 2003/2008) where official AMIs are unavailable.</em></p>
 
       <h3>3. Re‑platform (Modernize)</h3>
