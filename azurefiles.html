@@ -25,7 +25,11 @@
         <li>Maintain <strong>cost efficiency</strong> by using Locally Redundant Storage (LRS).</li>
         <li>Ensure <strong>business continuity</strong> with Azure Backup and recovery validation.</li>
       </ul>
-      <img src="images/AzureFiles-Overview.png" alt="Azure Files hybrid architecture diagram" />
+      <p>Reference: 
+        <a href="https://learn.microsoft.com/en-us/azure/architecture/hybrid/azure-file-share#architecture" target="_blank">
+       Microsoft Azure Architecture Center – Use Azure file shares in a hybrid environment
+       </a>
+      </p>
     </article>
 
     <article id="existing">
@@ -35,11 +39,13 @@
         <li><strong>File server:</strong> Legacy hardware targeted for migration to Azure.</li>
         <li><strong>Business driver:</strong> Reduce hardware footprint while retaining AD DS locally.</li>
       </ul>
-      <img src="images/AzureFiles-Existing.png" alt="Existing on-premises AD and file server setup" />
     </article>
 
     <article id="approach">
       <h2>Approach</h2>
+      <p> Here is the high-level diagram for this approach.</p>
+      <img src="images/AzureFiles-Approach.png" alt="Azure Files deployment approach diagram" />
+
       <h3>Microsoft Entra ID Setup</h3>
       <ul>
         <li>Create tenant and provision admin/worker accounts.</li>
@@ -80,7 +86,6 @@
         <li>Map drives for branch users.</li>
         <li>Authentication via on‑prem AD DS over VPN.</li>
       </ul>
-      <img src="images/AzureFiles-Approach.png" alt="Azure Files deployment approach diagram" />
     </article>
 
     <article id="features">
@@ -121,7 +126,7 @@
         <li><strong>Centralized management:</strong> Simplifies auditing and control.</li>
         <li><strong>Scalability:</strong> Consistent application across multiple resources.</li>
       </ul>
-      <img src="images/AzureFiles-Lessons.png" alt="RBAC benefits illustration" />
+
     </article>
   </main>
 
