@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cost‑Effective Azure Files Solution</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Cost‑Effective Azure Files Solution</h1>
+    <nav>
+      <a href="index.html">← Back to Portfolio</a>
+    </nav>
+  </header>
+
+  <main>
+    <article id="overview">
+      <h2>Overview</h2>
+      <p><strong>Client:</strong> Mid‑sized enterprise with on‑premises AD and file server infrastructure</p>
+      <p><strong>Proposal:</strong> Migrate file server workloads to Azure Files in a hybrid setup, modernizing IT infrastructure while reducing hardware footprint and optimizing costs.</p>
+      <h3>Key Objectives</h3>
+      <ul>
+        <li>Leverage <strong>Azure Files</strong> with AD DS authentication for seamless user access.</li>
+        <li>Maintain <strong>cost efficiency</strong> by using Locally Redundant Storage (LRS).</li>
+        <li>Ensure <strong>business continuity</strong> with Azure Backup and recovery validation.</li>
+      </ul>
+      <img src="images/AzureFiles-Overview.png" alt="Azure Files hybrid architecture diagram" />
+    </article>
+
+    <article id="existing">
+      <h2>Existing Arrangement</h2>
+      <ul>
+        <li><strong>On‑premises AD DS:</strong> Active Directory server remains onsite.</li>
+        <li><strong>File server:</strong> Legacy hardware targeted for migration to Azure.</li>
+        <li><strong>Business driver:</strong> Reduce hardware footprint while retaining AD DS locally.</li>
+      </ul>
+      <img src="images/AzureFiles-Existing.png" alt="Existing on-premises AD and file server setup" />
+    </article>
+
+    <article id="approach">
+      <h2>Approach</h2>
+      <h3>Microsoft Entra ID Setup</h3>
+      <ul>
+        <li>Create tenant and provision admin/worker accounts.</li>
+        <li>Define groups for file access control.</li>
+      </ul>
+
+      <h3>Networking</h3>
+      <ul>
+        <li>Deploy Azure VNet in East Asia.</li>
+        <li>Configure Azure VPN Gateway.</li>
+        <li>Establish site‑to‑site VPNs from branch offices.</li>
+      </ul>
+
+      <h3>Directory Synchronization</h3>
+      <ul>
+        <li>Install Microsoft Entra Connect on on‑prem server.</li>
+        <li>Sync selected OUs (users, groups) from AD DS → Entra ID.</li>
+        <li>Enable Password Hash Sync or Pass‑through Authentication.</li>
+      </ul>
+
+      <h3>Azure Files Deployment</h3>
+      <ul>
+        <li>Create storage account with LRS redundancy.</li>
+        <li>Enable AD DS authentication for Azure Files.</li>
+        <li>Register storage account with on‑prem AD DS.</li>
+        <li>Create file shares and apply NTFS ACLs using AD DS groups.</li>
+      </ul>
+
+      <h3>Azure Backup</h3>
+      <ul>
+        <li>Create Recovery Services vault in East Asia.</li>
+        <li>Protect Azure Files shares with backup policies.</li>
+        <li>Perform test restores to validate recovery.</li>
+      </ul>
+
+      <h3>Client Access</h3>
+      <ul>
+        <li>Map drives for branch users.</li>
+        <li>Authentication via on‑prem AD DS over VPN.</li>
+      </ul>
+      <img src="images/AzureFiles-Approach.png" alt="Azure Files deployment approach diagram" />
+    </article>
+
+    <article id="features">
+      <h2>Features</h2>
+      <ul>
+        <li><strong>Microsoft Entra ID:</strong> Cloud identity management.</li>
+        <li><strong>VPN connectivity:</strong> Secure hybrid access.</li>
+        <li><strong>Directory sync:</strong> Entra Connect for AD DS integration.</li>
+        <li><strong>Azure Files:</strong> Enterprise‑grade storage with AD DS authentication.</li>
+        <li><strong>Azure Backup:</strong> Data protection and recovery.</li>
+        <li><strong>Drive mapping:</strong> Seamless user experience.</li>
+      </ul>
+      <img src="images/AzureFiles-Features.png" alt="Azure Files features illustration" />
+    </article>
+
+    <article id="technical">
+      <h2>Cost & Security Considerations</h2>
+      <h3>Cost Optimization</h3>
+      <ul>
+        <li>Use <strong>LRS</strong> instead of Geo‑Redundant Storage to reduce recurring costs.</li>
+        <li>Site‑to‑site VPN chosen over ExpressRoute for economical connectivity.</li>
+      </ul>
+
+      <h3>Security & Monitoring</h3>
+      <ul>
+        <li>Enforce <strong>MFA</strong> for administrators.</li>
+        <li>Apply <strong>RBAC</strong> for granular resource permissions.</li>
+      </ul>
+      <img src="images/AzureFiles-CostSecurity.png" alt="Cost and security considerations diagram" />
+    </article>
+
+    <article id="lessons">
+      <h2>Lessons Learned</h2>
+      <p><strong>Insight:</strong> Role‑Based Access Control (RBAC) is critical for scalability, least privilege enforcement, and centralized management.</p>
+      <h3>RBAC Benefits</h3>
+      <ul>
+        <li><strong>Least privilege:</strong> Users receive only the access they require.</li>
+        <li><strong>Centralized management:</strong> Simplifies auditing and control.</li>
+        <li><strong>Scalability:</strong> Consistent application across multiple resources.</li>
+      </ul>
+      <img src="images/AzureFiles-Lessons.png" alt="RBAC benefits illustration" />
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 Kazushige Tani</p>
+  </footer>
+</body>
+</html>
