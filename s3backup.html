@@ -25,6 +25,7 @@
         <li><strong>Secondary backup:</strong> AWS S3 offsite for durability and lifecycle tiering.</li>
         <li><strong>Security:</strong> Client‑side encryption enabled in Hyper Backup.</li>
       </ul>
+ 
     </article>
 
     <article id="hardware">
@@ -41,16 +42,96 @@
     <article id="diagram">
       <h2>Architecture diagram</h2>
       <p>High‑level flow of backup from Synology NAS to onsite HDD and AWS S3.</p>
-      <img src="images/synology-aws-backup-approach.png" alt="Synology NAS to AWS S3 backup approach diagram" />
+      <img src="images/E. S3Diagram.png" alt="S3 with lifecycle diagram" />
     </article>
 
     <article id="aws-setup">
       <h2>AWS setup</h2>
       <ol>
         <li><strong>Create S3 bucket:</strong> Define bucket name, region, and default settings.</li>
+            <p>Open the AWS Backup console.</p>
+            <img src="images/E. S3-1.png" alt="S3 console" />
+            <p>Create S3 bucket after selecting the prefered region. In this case, Asia Pacific (Hong Kong) ap-east-1 is selected.</p>
+            <img src="images/E. S3-2.png" alt="S3 bucket create-1" />
+            <p>Name the backet for backup, leave the rest of the setting as default and press "Create bucket". </p>
+            <img src="images/E. S3-3.png" alt="S3 bucket create-2" />
         <li><strong>Create IAM user:</strong> Programmatic access for Hyper Backup integration.</li>
+            <p>Open the AWS Backup console.</p>
+            <img src="images/E. IAM-1.png" alt="IAM console" />
+            <p>Create user for Synology Hyper Backup.</p>
+            <img src="images/E. IAM-2.png" alt="IAM user create-1" />
+            <p>Name the IAM user "synology-hyperbackup" and press "Next"</p>
+            <img src="images/E. IAM-3.png" alt="IAM user create-2" />
         <li><strong>Attach policy:</strong> Grant access to the S3 bucket with least privilege.</li>
+            <p>Set permissions to attach policies directly.</p>
+            <img src="images/E. IAM-4.png" alt="IAM user create-3" />
+            <p>Specify the permissions by JSON editor.</p>
+            <img src="images/E. IAM-5.png" alt="IAM user create-4" />
+            <h3>JOSON policy template for Synology Hyper Backup</h3>
+            <script>
+              // Function to copy JSON policy text from a <pre><code> block
+              function copyPolicy(codeId) {
+                const codeBlock = document.getElementById(codeId);
+                const text = codeBlock.textContent;
+
+                // Try modern Clipboard API
+                navigator.clipboard.writeText(text).then(() => {
+                  alert("Policy copied to clipboard.");
+                }).catch(() => {
+                  // Fallback for older browsers
+                  const ta = document.createElement("textarea");
+                  ta.value = text;
+                  document.body.appendChild(ta);
+                  ta.select();
+                  document.execCommand("copy");
+                  document.body.removeChild(ta);
+                  alert("Policy copied to clipboard.");
+                });
+              }
+            </script>
+            <pre><code id="policyJson">{
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Action": ["s3:GetBucketLocation","s3:ListBucket"],
+                    "Resource": "arn:aws:s3:::<bucket-name-here>"
+                  },
+                  {
+                    "Effect": "Allow",
+                    "Action": ["s3:GetObject","s3:PutObject","s3:DeleteObject"],
+                    "Resource": "arn:aws:s3:::<bucket-name-here>/*"
+                  }
+                ]
+              }</code></pre>
+              <button onclick="copyPolicy('policyJson')">Copy Policy</button>
+              <h3>Remark:</h3>
+              <section>
+                <ul>
+                  <li><strong>Valid for Hyper Backup:</strong> The policy provides the necessary permissions for Synology NAS to back up and restore data.</li>
+                  <li><strong>s3:ListAllMyBuckets:</strong>
+                    <ul>
+                      <li>Can be removed after the initial backup to enforce least‑privilege.</li>
+                      <li>However, Synology requires it to detect the S3 bucket, so it must remain in practice.</li>
+                    </ul>
+                  </li>
+                  <li><strong>Avoid AmazonS3FullAccess:</strong>
+                    <ul>
+                      <li>Grants unrestricted access to all S3 resources.</li>
+                      <li>Not recommended, as it violates least‑privilege principles.</li>
+                    </ul>
+                  </li>
+                </ul>
+              </section>
+            <p>Select the newly created policy and Create user.</p>
+            <img src="images/E. IAM-6.png" alt="IAM user create-5" />
+            <img src="images/E. IAM-7.png" alt="IAM user create-6" />
         <li><strong>Record credentials:</strong> Copy Access Key ID and Secret Access Key.</li>
+            <p>Go to "Users" tab and Select "synology-hyperbackup" user.</p>
+            <img src="images/E. IAM-9.png" alt="IAM user-1" />
+            <p>Create Access key and Secret Access Key and copy/ download them as a CSV file.</p>
+            <img src="images/E. IAM-10.png" alt="IAM user-2" />
+            <img src="images/E. IAM-13.png" alt="IAM user-3" /> 
       </ol>
     </article>
 
