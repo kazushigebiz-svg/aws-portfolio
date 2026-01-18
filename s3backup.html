@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hands‑on LAB for Synology NAS Cloud Backup</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Hands‑on LAB for Synology NAS Cloud Backup</h1>
+    <nav>
+      <a href="index.html">← Back to Portfolio</a>
+    </nav>
+  </header>
+
+  <main>
+    <article id="overview">
+      <h2>Overview</h2>
+      <p><strong>Purpose:</strong> Guide to back up Synology NAS to AWS S3 using Hyper Backup, recreating a real‑life solution from past project experience.</p>
+      <p><strong>Scope:</strong> Configuration on Synology NAS and AWS S3 only.</p>
+      <h3>Objectives</h3>
+      <ul>
+        <li><strong>Primary backup:</strong> External HDD (10 TB) onsite.</li>
+        <li><strong>Secondary backup:</strong> AWS S3 offsite for durability and lifecycle tiering.</li>
+        <li><strong>Security:</strong> Client‑side encryption enabled in Hyper Backup.</li>
+      </ul>
+    </article>
+
+    <article id="hardware">
+      <h2>Hardware and storage specification</h2>
+      <ul>
+        <li><strong>Synology NAS:</strong> 4‑bay unit.</li>
+        <li><strong>Disk configuration:</strong> 4 TB × 2 (RAID 1).</li>
+        <li><strong>Storage capacity:</strong> Mirrored volume for resilience.</li>
+        <li><strong>Onsite backup:</strong> External HDD (10 TB) as primary destination.</li>
+        <li><strong>Offsite backup:</strong> AWS S3 as secondary destination.</li>
+      </ul>
+    </article>
+
+    <article id="diagram">
+      <h2>Architecture diagram</h2>
+      <p>High‑level flow of backup from Synology NAS to onsite HDD and AWS S3.</p>
+      <img src="images/synology-aws-backup-approach.png" alt="Synology NAS to AWS S3 backup approach diagram" />
+    </article>
+
+    <article id="aws-setup">
+      <h2>AWS setup</h2>
+      <ol>
+        <li><strong>Create S3 bucket:</strong> Define bucket name, region, and default settings.</li>
+        <li><strong>Create IAM user:</strong> Programmatic access for Hyper Backup integration.</li>
+        <li><strong>Attach policy:</strong> Grant access to the S3 bucket with least privilege.</li>
+        <li><strong>Record credentials:</strong> Copy Access Key ID and Secret Access Key.</li>
+      </ol>
+    </article>
+
+    <article id="synology-setup">
+      <h2>Synology NAS setup</h2>
+      <ol>
+        <li><strong>Install Hyper Backup:</strong> Ensure the package is up to date.</li>
+        <li><strong>Create backup task:</strong> Select data and applications to protect.</li>
+        <li><strong>Enable client‑side encryption:</strong> Set encryption password and securely store the key.</li>
+        <li><strong>Run backup job:</strong> Execute and verify completion status.</li>
+      </ol>
+    </article>
+
+    <article id="validation">
+      <h2>Validation and restoration</h2>
+      <h3>AWS verification</h3>
+      <ul>
+        <li><strong>Check contents:</strong> Confirm backup objects appear in the S3 bucket.</li>
+      </ul>
+      <h3>Synology restoration</h3>
+      <ul>
+        <li><strong>Test restore:</strong> Use Hyper Backup to restore sample data and validate integrity.</li>
+      </ul>
+    </article>
+
+    <article id="considerations">
+      <h2>Considerations</h2>
+      <ul>
+        <li><strong>Storage class behavior:</strong> Synology does not expose storage class selection; backups default to S3 Standard.</li>
+        <li><strong>Lifecycle management:</strong> Use S3 Lifecycle rules to transition backups to lower‑cost tiers after defined periods.</li>
+      </ul>
+    </article>
+
+    <article id="lifecycle-policy">
+      <h2>Lifecycle policy configuration</h2>
+      <p><strong>Goal:</strong> Automatically transition Synology backup objects from S3 Standard to Standard‑IA after 30 days, then to Glacier Deep Archive after 180 days.</p>
+      <h3>Steps</h3>
+      <ol>
+        <li><strong>Navigate:</strong> S3 → Buckets → [bucket name] → Management tab.</li>
+        <li><strong>Create rule:</strong> Click “Create lifecycle rule”.</li>
+        <li><strong>Name:</strong> Use a clear identifier (e.g., SynologyBackupLifecycle).</li>
+        <li><strong>Scope:</strong> Apply to all objects, or set a prefix for backup paths.</li>
+        <li><strong>Add transitions:</strong>
+          <ul>
+            <li><strong>After 30 days:</strong> Transition to Standard‑IA.</li>
+            <li><strong>After 180 days:</strong> Transition to Glacier Deep Archive.</li>
+          </ul>
+        </li>
+        <li><strong>Save:</strong> Confirm and enable the lifecycle rule.</li>
+      </ol>
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 Kazushige Tani</p>
+  </footer>
+</body>
+</html>
