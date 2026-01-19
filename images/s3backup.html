@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hands‑on LAB for Synology NAS Cloud Backup</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Hands‑on LAB for Synology NAS Cloud Backup</h1>
+    <nav>
+      <a href="index.html">← Back to Portfolio</a>
+    </nav>
+  </header>
+
+  <main>
+    <article id="overview">
+      <h2>Overview</h2>
+      <p><strong>Purpose:</strong> Guide to back up Synology NAS to AWS S3 using Hyper Backup, recreating a real‑life solution from past project experience.</p>
+      <p><strong>Scope:</strong> Configuration on Synology NAS and AWS S3 only.</p>
+      <h3>Objectives</h3>
+      <ul>
+        <li><strong>Primary backup:</strong> External HDD (10 TB) onsite.(Not included in this hands-on lab.)</li>
+        <li><strong>Secondary backup:</strong> AWS S3 offsite for durability and lifecycle tiering.</li>
+        <li><strong>Security:</strong> Client‑side encryption enabled in Hyper Backup.</li>
+      </ul>
+ 
+    </article>
+
+    <article id="hardware">
+      <h2>Hardware and storage specification</h2>
+      <ul>
+        <li><strong>Synology NAS:</strong> 4‑bay unit.</li>
+        <li><strong>Disk configuration:</strong> 4 TB × 2 (RAID 1).</li>
+        <li><strong>Storage capacity:</strong> Mirrored volume for resilience.</li>
+        <li><strong>Onsite backup:</strong> External HDD (10 TB) as primary destination.</li>
+        <li><strong>Offsite backup:</strong> AWS S3 as secondary destination.</li>
+      </ul>
+    </article>
+
+    <article id="diagram">
+      <h2>Architecture diagram</h2>
+      <p>High‑level flow of backup from Synology NAS to onsite HDD and AWS S3.</p>
+      <img src="images/E. S3Diagram.png" alt="S3 with lifecycle diagram" />
+    </article>
+
+    <article id="aws-setup">
+      <h2>AWS setup</h2>
+      <ol>
+        <li><strong>Create S3 bucket:</strong> Define bucket name, region, and default settings.</li>
+            <p>Open the AWS Backup console.</p>
+            <img src="images/E. S3-1.png" alt="S3 console" />
+            <p>Create S3 bucket after selecting the prefered region. In this case, Asia Pacific (Hong Kong) ap-east-1 is selected.</p>
+            <img src="images/E. S3-2.png" alt="S3 bucket create-1" />
+            <p>Name the backet for backup, leave the rest of the setting as default and press "Create bucket". </p>
+            <img src="images/E. S3-3.png" alt="S3 bucket create-2" />
+        <li><strong>Create IAM user:</strong> Programmatic access for Hyper Backup integration.</li>
+            <p>Open the AWS Backup console.</p>
+            <img src="images/E. IAM-1.png" alt="IAM console" />
+            <p>Create user for Synology Hyper Backup.</p>
+            <img src="images/E. IAM-2.png" alt="IAM user create-1" />
+            <p>Name the IAM user "synology-hyperbackup" and press "Next"</p>
+            <img src="images/E. IAM-3.png" alt="IAM user create-2" />
+        <li><strong>Attach policy:</strong> Grant access to the S3 bucket with least privilege.</li>
+            <p>Set permissions to attach policies directly.</p>
+            <img src="images/E. IAM-4.png" alt="IAM user create-3" />
+            <p>Specify the permissions by JSON editor.</p>
+            <img src="images/E. IAM-5.png" alt="IAM user create-4" />
+            <h3>JSON-formated policy template for Synology Hyper Backup</h3>
+            <script>
+              // Function to copy JSON policy text from a <pre><code> block
+              function copyPolicy(codeId) {
+                const codeBlock = document.getElementById(codeId);
+                const text = codeBlock.textContent;
+
+                // Try modern Clipboard API
+                navigator.clipboard.writeText(text).then(() => {
+                  alert("Policy copied to clipboard.");
+                }).catch(() => {
+                  // Fallback for older browsers
+                  const ta = document.createElement("textarea");
+                  ta.value = text;
+                  document.body.appendChild(ta);
+                  ta.select();
+                  document.execCommand("copy");
+                  document.body.removeChild(ta);
+                  alert("Policy copied to clipboard.");
+                });
+              }
+            </script>
+            <pre><code id="policyJson">
+              {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                      {
+                          "Effect": "Allow",
+                          "Action": [
+                              "s3:GetBucketLocation",
+                              "s3:ListBucket"
+                          ],
+                          "Resource": "arn:aws:s3:::bucket-name-here"
+                      },
+                      {
+                          "Effect": "Allow",
+                          "Action": [
+                              "s3:GetObject",
+                              "s3:PutObject",
+                              "s3:DeleteObject"
+                          ],
+                          "Resource": "arn:aws:s3:::bucket-name-here/*"
+                      },
+                      {
+                          "Effect": "Allow",
+                          "Action": "s3:ListAllMyBuckets",
+                          "Resource": "*"
+                      }
+                  ]
+              }
+            </code></pre>
+              <button onclick="copyPolicy('policyJson')">Copy Policy</button>
+              <h3>Remark:</h3>
+              <section>
+                <ul>
+                  <li><strong>Valid for Hyper Backup:</strong> The policy provides the necessary permissions for Synology NAS to back up and restore data.</li>
+                  <li><strong>Reame the bucket:</strong> Ensure that "bucket-name-here" is replaced with the actual bucket name.</li>
+                  <li><strong>s3:ListAllMyBuckets:</strong>
+                    <ul>
+                      <li>Can be removed after the initial backup to enforce least‑privilege.</li>
+                      <li>However, Synology requires it to detect the S3 bucket, so it must remain in practice at the initial phase.</li>
+                    </ul>
+                  </li>
+                  <li><strong>Avoid AmazonS3FullAccess:</strong>
+                    <ul>
+                      <li>Grants unrestricted access to all S3 resources.</li>
+                      <li>Not recommended, as it violates least‑privilege principles.</li>
+                    </ul>
+                  </li>
+                </ul>
+              </section>
+            <p>Select the newly created policy and Create user.</p>
+            <img src="images/E. IAM-6.png" alt="IAM user create-5" />
+            <img src="images/E. IAM-7.png" alt="IAM user create-6" />
+        <li><strong>Record credentials:</strong> Copy Access Key ID and Secret Access Key.</li>
+            <p>Go to "Users" tab and Select "synology-hyperbackup" user.</p>
+            <img src="images/E. IAM-9.png" alt="IAM user-1" />
+            <p>Create Access key and Secret Access Key and copy/ download them as a .csv file.</p>
+            <img src="images/E. IAM-10.png" alt="IAM user-2" />
+            <img src="images/E. IAM-13.png" alt="IAM user-3" /> 
+      </ol>
+    </article>
+
+    <article id="synology-setup">
+      <h2>Synology NAS setup</h2>
+      <ol>
+        <li><strong>Install Hyper Backup:</strong> Ensure the package is up to date.</li>
+            <img src="images/E. NAS-1.png" alt="Hype Backup-1" />   
+        <li><strong>Create backup task:</strong> Select data and applications to protect.</li>
+            <p>Create backup task and select S3 storage.</p>
+            <img src="images/E. NAS-2.png" alt="Hype Backup-2" />
+            <img src="images/E. NAS-3.png" alt="Hype Backup-3" />
+            <img src="images/E. NAS-4.png" alt="Hype Backup-4" />
+            <p>Input S3 Server information and select a backup source.</p>
+            <img src="images/E. NAS-5.png" alt="Hype Backup-5" />
+            <img src="images/E. NAS-6.png" alt="Hype Backup-6" />
+        <li><strong>Configure backup setting:</strong> Set Storage Class, Backup Schedule and Client‑side Encryption, etc.</li>
+            <img src="images/E. NAS-7.png" alt="Hype Backup-7" />
+            <p>Ensure that the encription key are safely stored.</p>
+            <img src="images/E. NAS-8.png" alt="Hype Backup-8" />
+        <li><strong>Run backup job:</strong> Execute and verify completion status.</li>
+            <img src="images/E. NAS-11.png" alt="Hype Backup-11" />
+            <p>It may takes sometime to complete the backup task depending of data size and internet upload speed.</p>
+            <img src="images/E. NAS-12.png" alt="Hype Backup-12" />
+      </ol>
+      <h2>Important Note</h2>
+            <p><strong>The correct IAM policy must be attached to the Synology NAS IAM user for backups.</strong></p>
+            <p>If the policy is missing or incorrect, newly created S3 bucket names will not appear.</p>
+    </article>
+
+    <article id="validation">
+      <h2>Validation and restoration</h2>
+      <h3>AWS verification</h3>
+      <ul>
+
+        <li><strong>Check contents:</strong> Confirm backup objects appear in the S3 bucket.</li>
+      </ul>
+        <img src="images/E. S3-5.png" alt="S3 bucket detail-1" />
+        <p>Hyper Backup stores data in a compressed, deduplicated, and versioned repository, not as plain files.</p>
+        <img src="images/E. S3-6.png" alt="S3 bucket detail-2" />
+      <h3>Synology restoration</h3>
+      <ul>
+        <li><strong>Test restore:</strong> Use Hyper Backup to restore sample data and validate integrity.</li>
+      </ul>
+        <p>Use Hyper Backup on NAS (or Hyper Backup Explorer on PC to browse and restore).</p>
+        <img src="images/E. NAS-13.png" alt="Hype Backup-13" />
+        <p>Task Verification to enter PW for client-side encription.</p>
+        <img src="images/E. NAS-14.png" alt="Hype Backup-14" />
+        <p>Copy to another NAS folder, restore within same folder or download the backup file/folder.</p>
+        <img src="images/E. NAS-15.png" alt="Hype Backup-15" />
+    </article>
+
+    <article id="considerations">
+      <h2>Considerations</h2>
+      <ul>
+        <li><strong>Storage class:</strong> Synology supports S3 Storage Standard, Reduced Redundancy Storage, Standard - IA, Intelligent-Tiering, and One Zone - IA.</li>
+        <li><strong>Lifecycle management:</strong> Use S3 Lifecycle rules to transition backups to lower‑cost tiers after defined periods.</li>
+      </ul>
+    </article>
+
+    <article id="lifecycle-policy">
+      <h2>Lifecycle policy configuration</h2>
+      <p><strong>Goal:</strong> Automatically transition Synology backup objects from S3 Standard to Standard‑IA after 30 days, then to Glacier Deep Archive after 180 days.</p>
+      <h3>Steps</h3>
+      <ol>
+        <li><strong>Navigate:</strong> S3 → Buckets → [bucket name] → Management tab.</li>
+        <li><strong>Create rule:</strong> Click “Create lifecycle rule”.</li>
+        <img src="images/E. S3-7.png" alt="S3 bucket detail-3" />
+        <li><strong>Name:</strong> Use a clear identifier (e.g., SynologyBackupLifecycle).</li>
+        <li><strong>Scope:</strong> Apply to all objects, or set a prefix for backup paths.</li>
+        <img src="images/E. S3-8.png" alt="S3 bucket detail-4" /> 
+        <li><strong>Add transitions:</strong>
+          <ul>
+            <li><strong>After 30 days:</strong> Transition to Standard‑IA.</li>
+            <li><strong>After 180 days:</strong> Transition to Glacier Deep Archive.</li>
+          </ul>
+        </li>
+        <img src="images/E. S3-9.png" alt="S3 bucket detail-5" />
+        <li><strong>Save:</strong> Confirm and enable the lifecycle rule.</li>
+        <img src="images/E. S3-10.png" alt="S3 bucket detail-6" />
+      </ol>
+    </article>
+  </main>
+
+  <footer>
+    <p>© 2026 Kazushige Tani</p>
+  </footer>
+</body>
+</html>
